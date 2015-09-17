@@ -1,0 +1,3 @@
+vm:
+  box: ubuntu/trusty64
+  name: sample-vm
