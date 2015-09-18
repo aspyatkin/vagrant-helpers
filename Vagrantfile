@@ -119,6 +119,16 @@ def set_vm_private_networks(config, opts)
 end
 
 
+def set_vm_synced_folders(config, opts)
+  vm_synced_folders = opts.fetch('vm', {}).fetch('synced_folders', [])
+
+  vm_synced_folders.each do |entry|
+    prepared_options = Hash[entry.fetch('opts', {}).map { |(k,v)| [k.to_sym, v] }]
+    config.vm.synced_folder entry['host'], entry['guest'], **prepared_options
+  end
+end
+
+
 Vagrant.configure(2) do |config|
   opts = get_opts
 
@@ -130,4 +140,5 @@ Vagrant.configure(2) do |config|
   set_vm_forwarded_ports config, opts
   set_vm_public_networks config, opts
   set_vm_private_networks config, opts
+  set_vm_synced_folders config, opts
 end

@@ -18,3 +18,9 @@ vm:
     # set up host-only network
     # private:
     #   - type: dhcp
+  synced_folders:
+    # disable current directory syncing
+    - host: .
+      guest: /vagrant
+      opts:
+        disabled: yes
