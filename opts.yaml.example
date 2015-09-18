@@ -2,3 +2,4 @@ vm:
   box: ubuntu/trusty64
   name: sample-vm
   memory: 1024
+  cpus: 2

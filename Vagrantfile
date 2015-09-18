@@ -2,7 +2,6 @@
 # vi: set ft=ruby :
 
 require 'yaml'
-require 'logger'
 
 
 class MissingOptsFileError < Vagrant::Errors::VagrantError
@@ -51,23 +50,32 @@ def set_vm_box(config, opts)
 end
 
 
-def set_vm_name(config, opts, provider = :virtualbox)
+def set_vm_name(config, opts)
   vm_name = opts.fetch('vm', {}).fetch('name', nil)
   if vm_name.nil?
     raise MissingVMNameOptionError.new
   end
 
-  config.vm.provider provider do |v|
+  config.vm.provider :virtualbox do |v|
       v.name = vm_name
   end
 end
 
 
-def set_vm_memory(config, opts, provider = :virtualbox)
+def set_vm_memory(config, opts)
   vm_memory = opts.fetch('vm', {}).fetch('memory', 512)
 
-  config.vm.provider provider do |v|
+  config.vm.provider :virtualbox do |v|
     v.memory = vm_memory
+  end
+end
+
+
+def set_vm_cpus(config, opts)
+  vm_cpus = opts.fetch('vm', {}).fetch('cpus', 1)
+
+  config.vm.provider :virtualbox do |v|
+    v.cpus = vm_cpus
   end
 end
 
@@ -78,4 +86,5 @@ Vagrant.configure(2) do |config|
   set_vm_box config, opts
   set_vm_name config, opts
   set_vm_memory config, opts
+  set_vm_cpus config, opts
 end
