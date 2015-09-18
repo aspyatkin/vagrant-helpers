@@ -89,6 +89,36 @@ def set_vm_hostname(config, opts)
 end
 
 
+def set_vm_forwarded_ports(config, opts)
+  vm_forwarded_ports = opts.fetch('vm', {}).fetch('network', {}).fetch('forwarded_ports', [])
+
+  vm_forwarded_ports.each do |options|
+    prepared_options = Hash[options.map { |(k, v)| [k.to_sym, v] }]
+    config.vm.network :forwarded_port, **prepared_options
+  end
+end
+
+
+def set_vm_public_networks(config, opts)
+  vm_public_networks = opts.fetch('vm', {}).fetch('network', {}).fetch('public', [])
+
+  vm_public_networks.each do |options|
+    prepared_options = Hash[options.map { |(k, v)| [k.to_sym, v] }]
+    config.vm.network :public_network, **prepared_options
+  end
+end
+
+
+def set_vm_private_networks(config, opts)
+  vm_private_networks = opts.fetch('vm', {}).fetch('network', {}).fetch('private', [])
+
+  vm_private_networks.each do |options|
+    prepared_options = Hash[options.map { |(k, v)| [k.to_sym, v] }]
+    config.vm.network :private_network, **prepared_options
+  end
+end
+
+
 Vagrant.configure(2) do |config|
   opts = get_opts
 
@@ -97,4 +127,7 @@ Vagrant.configure(2) do |config|
   set_vm_memory config, opts
   set_vm_cpus config, opts
   set_vm_hostname config, opts
+  set_vm_forwarded_ports config, opts
+  set_vm_public_networks config, opts
+  set_vm_private_networks config, opts
 end
