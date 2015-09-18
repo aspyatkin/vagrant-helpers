@@ -80,6 +80,15 @@ def set_vm_cpus(config, opts)
 end
 
 
+def set_vm_hostname(config, opts)
+  vm_hostname = opts.fetch('vm', {}).fetch('hostname', nil)
+
+  unless vm_hostname.nil?
+    config.vm.hostname = vm_hostname
+  end
+end
+
+
 Vagrant.configure(2) do |config|
   opts = get_opts
 
@@ -87,4 +96,5 @@ Vagrant.configure(2) do |config|
   set_vm_name config, opts
   set_vm_memory config, opts
   set_vm_cpus config, opts
+  set_vm_hostname config, opts
 end

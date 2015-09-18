@@ -3,3 +3,4 @@ vm:
   name: sample-vm
   memory: 1024
   cpus: 2
+  hostname: sample.example.com
