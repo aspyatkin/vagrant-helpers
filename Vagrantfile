@@ -63,9 +63,19 @@ def set_vm_name(config, opts, provider = :virtualbox)
 end
 
 
+def set_vm_memory(config, opts, provider = :virtualbox)
+  vm_memory = opts.fetch('vm', {}).fetch('memory', 512)
+
+  config.vm.provider provider do |v|
+    v.memory = vm_memory
+  end
+end
+
+
 Vagrant.configure(2) do |config|
   opts = get_opts
 
   set_vm_box config, opts
   set_vm_name config, opts
+  set_vm_memory config, opts
 end
