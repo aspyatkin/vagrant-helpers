@@ -24,3 +24,7 @@ vm:
       guest: /vagrant
       opts:
         disabled: yes
+  storage:
+    # create storage in the specified file of specified size (in MB)
+    - filename: /Users/someone/Documents/vm/extra_disk.vdi
+      size: 128

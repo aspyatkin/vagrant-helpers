@@ -129,6 +129,42 @@ def set_vm_synced_folders(config, opts)
 end
 
 
+def set_vm_extra_storage(config, opts)
+  vm_storage_drives = opts.fetch('vm', {}).fetch('storage', [])
+
+  config.vm.provider :virtualbox do |v|
+    vm_storage_drives.each_with_index do |entry, ndx|
+      unless File.exists? entry['filename']
+        # create hdd
+        v.customize [
+          'createhd',
+          '--filename',
+          entry['filename'],
+          '--size',
+          entry['size']
+        ]
+      end
+
+      # attach hdd
+      v.customize [
+        'storageattach',
+        :id,
+        '--storagectl',
+        'SATA',
+        '--port',
+        ndx + 1,
+        '--device',
+        0,
+        '--type',
+        'hdd',
+        '--medium',
+        entry['filename']
+      ]
+    end
+  end
+end
+
+
 Vagrant.configure(2) do |config|
   opts = get_opts
 
@@ -141,4 +177,5 @@ Vagrant.configure(2) do |config|
   set_vm_public_networks config, opts
   set_vm_private_networks config, opts
   set_vm_synced_folders config, opts
+  set_vm_extra_storage config, opts
 end
