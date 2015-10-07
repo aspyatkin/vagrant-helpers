@@ -165,6 +165,29 @@ def set_vm_extra_storage(config, opts)
 end
 
 
+def provision_with_salt(config, opts)
+  config.vm.provision :salt do |salt|
+    salt.minion_config = 'salt/minion'
+    salt.master_config = 'salt/master'
+
+    salt.minion_key = 'salt/key/minion.pem'
+    salt.minion_pub = 'salt/key/minion.pub'
+
+    salt.master_key = 'salt/key/master.pem'
+    salt.master_pub = 'salt/key/master.pub'
+
+    salt.install_master = true
+    salt.seed_master = {minion: salt.minion_pub}
+
+    salt.run_highstate = true
+    salt.verbose = true
+
+    salt.colorize = true
+    salt.bootstrap_options = '-c /tmp'
+  end
+end
+
+
 Vagrant.configure(2) do |config|
   opts = get_opts
 
@@ -178,4 +201,6 @@ Vagrant.configure(2) do |config|
   set_vm_private_networks config, opts
   set_vm_synced_folders config, opts
   set_vm_extra_storage config, opts
+
+  # provision_with_salt config, opts
 end
