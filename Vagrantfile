@@ -150,7 +150,7 @@ def set_vm_extra_storage(config, opts)
         'storageattach',
         :id,
         '--storagectl',
-        'SATA',
+        'SATA Controller',
         '--port',
         ndx + 1,
         '--device',
