@@ -1,3 +1,5 @@
 .vagrant
 .storage
 opts.yaml
+Gemfile.lock
+pkg/*.gem
