@@ -1,5 +1,5 @@
 # vagrant-helpers
-[![Gem](https://img.shields.io/gem/v/vagrant-helpers.svg?style=flat-square)]()[![License](https://img.shields.io/github/license/aspyatkin/vagrant-helpers.svg?style=flat-square)](https://github.com/aspyatkin/vagrant-helpers/blob/master/LICENSE)  
+[![Gem](https://img.shields.io/gem/v/vagrant-helpers.svg?style=flat-square)]() [![License](https://img.shields.io/github/license/aspyatkin/vagrant-helpers.svg?style=flat-square)](https://github.com/aspyatkin/vagrant-helpers/blob/master/LICENSE)  
 [Vagrant](https://www.vagrantup.com) environment customization helpers.
 
 ## Problem
