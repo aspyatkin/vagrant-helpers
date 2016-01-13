@@ -1,5 +1,5 @@
 # vagrant-helpers
-[![Gem](https://img.shields.io/gem/v/vagrant-helpers.svg?style=flat-square)]()  
+[![Gem](https://img.shields.io/gem/v/vagrant-helpers.svg?style=flat-square)]()[![License](https://img.shields.io/github/license/aspyatkin/vagrant-helpers.svg?style=flat-square)](https://github.com/aspyatkin/vagrant-helpers/blob/master/LICENSE)  
 [Vagrant](https://www.vagrantup.com) environment customization helpers.
 
 ## Problem
@@ -21,6 +21,18 @@ $ echo "VagrantPlugins::Helpers::setup __dir__" > Vagrantfile
 1. Prepare `opts.yaml` file applicable to your specific environment and make your source control system ignore it;
 2. Create `opts.example.yaml` file and provide it with sample environment values (like recommended Vagrant box to use and so on);
 3. Use [Vagrant](https://www.vagrantup.com) as usual.
+
+## Tips
+### opts file
+If you don't want `opts.yaml` file to be located in vagrant project's directory, you can specify an other path to your opts file via `VAGRANT_HELPERS_OPTS` environment variable.
+
+You have two options:
+- add an environment variable before each vagrant command
+`VAGRANT_HELPERS_OPTS=my-awesome-opts.yaml vagrant up`
+- put an environment variable to `.env` file located in vagrant project's directory. For instance, this file may contain
+`VAGRANT_HELPERS_OPTS=/absolute/path/to/my/opts/file`
+
+`VAGRANT_HELPERS_OPTS` may contain either absolute or relative path. If relative path is specified, it is considered relative to vagrant projects's directory.
 
 ## License
 MIT © [Alexander Pyatkin](https://github.com/aspyatkin)

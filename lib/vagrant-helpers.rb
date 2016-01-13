@@ -1,5 +1,7 @@
 require 'vagrant'
 require 'yaml'
+require 'dotenv'
+
 
 module VagrantPlugins
   module Helpers
@@ -27,7 +29,7 @@ module VagrantPlugins
     end
 
     def self.get_opts(dir)
-      filename = ::File.join dir, 'opts.yaml'
+      filename = ::File.expand_path(ENV['VAGRANT_HELPERS_OPTS'] || 'opts.yaml', dir)
       if ::File.exists? filename
         ::YAML.load ::File.open filename
       else
@@ -151,6 +153,9 @@ module VagrantPlugins
     end
 
     def self.setup(dir)
+      dotenv_filename = ::File.join dir, '.env'
+      ::Dotenv.load
+
       ::Vagrant.configure(2) do |config|
         opts = get_opts dir
 
