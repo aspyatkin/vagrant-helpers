@@ -28,3 +28,4 @@ vm:
     # create storage in the specified file of specified size (in MB)
     - filename: /Users/someone/Documents/vm/extra_disk.vdi
       size: 128
+      controller: IDE  # default: SATA

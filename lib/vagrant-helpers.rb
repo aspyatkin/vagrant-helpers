@@ -136,7 +136,7 @@ module VagrantPlugins
             'storageattach',
             :id,
             '--storagectl',
-            'SATAController',
+            entry['controller'] || 'SATA',
             '--port',
             ndx + 1,
             '--device',

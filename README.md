@@ -1,4 +1,5 @@
 # vagrant-helpers
+[![Gem](https://img.shields.io/gem/v/vagrant-helpers.svg?style=flat-square)]()  
 [Vagrant](https://www.vagrantup.com) environment customization helpers.
 
 ## Problem
@@ -7,7 +8,7 @@ Sometimes you have several Vagrant environments for one project, and these envir
 ## Approach
 The approach I came up with is quite simple. All environment settings (e.g. network) are stored in `opts.yaml` file in the directory where `Vagrantfile` exists. Vagrant parses this file and sets the specified options. You can add `Vagrantfile` to source control without exposing specific information about your environment.
 
-Each `opts.yaml` file is stored in its own environment. It should not be added to source control. You may create `opts.yaml.example` file (and add it to source control) with a sample configuration. Thus people cloning your project would be able to set up things fast by copying this file.
+Each `opts.yaml` file is stored in its own environment. It should not be added to source control. You may create `opts.example.yaml` file (and add it to source control) with a sample configuration. Thus people cloning your project would be able to set up things fast by copying this file.
 
 ## Setup
 ```
@@ -18,7 +19,7 @@ $ echo "VagrantPlugins::Helpers::setup __dir__" > Vagrantfile
 
 ## Usage
 1. Prepare `opts.yaml` file applicable to your specific environment and make your source control system ignore it;
-2. Create `opts.yaml.example` file and provide it with sample environment values (like recommended Vagrant box to use and so on);
+2. Create `opts.example.yaml` file and provide it with sample environment values (like recommended Vagrant box to use and so on);
 3. Use [Vagrant](https://www.vagrantup.com) as usual.
 
 ## License
