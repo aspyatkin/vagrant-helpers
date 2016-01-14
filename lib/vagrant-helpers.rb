@@ -1,6 +1,9 @@
 require 'vagrant'
 require 'yaml'
 require 'dotenv'
+require 'socket'
+require 'ipaddr'
+require 'ip'
 
 
 module VagrantPlugins
@@ -90,12 +93,49 @@ module VagrantPlugins
       end
     end
 
+    def self.get_cidr_mask(mask)
+       Integer(32 - Math.log2((IPAddr.new(mask, Socket::AF_INET).to_i ^ 0xffffffff) + 1))
+    end
+
+    def self.get_host_networks
+      host_networks = []
+
+      Socket.getifaddrs.each do |ifaddr|
+        if ifaddr.addr.ipv4? && ifaddr.addr.ipv4_private?
+          machine_address = IP.new ifaddr.addr.ip_address
+          netmask = IP.new ifaddr.netmask.ip_address
+          network_address = machine_address & netmask
+          host_networks << IP.new("#{network_address}/#{get_cidr_mask ifaddr.netmask.ip_address}")
+        end
+      end
+
+      host_networks
+    end
+
+    def self.host_in_network?(network_addr)
+      get_host_networks.any? { |host_network| host_network.eql? network_addr }
+    end
+
     def self.set_vm_public_networks(config, opts)
       vm_public_networks = opts.fetch('vm', {}).fetch('network', {}).fetch('public', [])
 
+      network_list = []
+
       vm_public_networks.each do |options|
-        prepared_options = ::Hash[options.map { |(k, v)| [k.to_sym, v] }]
-        config.vm.network :public_network, **prepared_options
+        if options.has_key? 'network'
+          network_addr = IP.new options.delete 'network'
+          if host_in_network? network_addr
+            network_list << options
+            break
+          end
+        else
+          network_list << options
+        end
+      end
+
+      network_list.each do |network_options|
+        options_sym_hash = ::Hash[network_options.map { |(k, v)| [k.to_sym, v] }]
+        config.vm.network :public_network, **options_sym_hash
       end
     end
 

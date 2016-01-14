@@ -23,8 +23,8 @@ $ echo "VagrantPlugins::Helpers::setup __dir__" > Vagrantfile
 3. Use [Vagrant](https://www.vagrantup.com) as usual.
 
 ## Tips
-### opts file
-If you don't want `opts.yaml` file to be located in vagrant project's directory, you can specify an other path to your opts file via `VAGRANT_HELPERS_OPTS` environment variable.
+### opts file location
+If you don't want `opts.yaml` file to be located in vagrant project's directory, you can specify an other path to your opts file via `VAGRANT_HELPERS_OPTS` environment variable. This feature has been introduced in `v1.2.0`.
 
 You have two options:
 - add an environment variable before each vagrant command
@@ -33,6 +33,25 @@ You have two options:
 `VAGRANT_HELPERS_OPTS=/absolute/path/to/my/opts/file`
 
 `VAGRANT_HELPERS_OPTS` may contain either absolute or relative path. If relative path is specified, it is considered relative to vagrant projects's directory.
+
+### bridged networks
+To connect your virtual machine instance to the Internet via bridged interface, host computer must be connected to a routed network (home or office Wi-Fi, for example). If your router has DHCP enabled, please consider choosing and address beyond DHCP range. For instance, network is `192.168.163.0/24`, DHCP range is from `192.168.163.2` to `192.168.163.200`, so the first address for your VM to use would be `192.168.163.201`.
+
+If you move often between different places, you might find it helpful to specify a different IP address for each of the networks you connect to. This feature has been introduced in `v1.3.0`. This is the sample configuration:
+```
+    ...
+    public:
+      # At home
+      - network: 192.168.163.0/24
+        ip: 192.168.163.100
+        bridge: 'en0: Wi-Fi (AirPort)'
+      # At the office
+      - network: 172.16.0.0/16
+        ip: 172.16.0.17
+        bridge: 'en0: Wi-Fi (AirPort)'
+    ...
+```
+When your computer is at home (network is `192.168.163.0/24`), Vagrant will be told to set `192.168.163.100` as an IP address for your virtual machine. When your computer is at the office (network is `172.16.0.0/16`), Vagrant will be told to set `172.16.0.17` as an IP address for your virtual machine.
 
 ## License
 MIT © [Alexander Pyatkin](https://github.com/aspyatkin)

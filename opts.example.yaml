@@ -12,7 +12,13 @@ vm:
 
     # set up bridged network
     # public:
-    #   - ip: 192.168.163.100
+    #   # At home
+    #   - network: 192.168.163.0/24
+    #     ip: 192.168.163.100
+    #     bridge: 'en0: Wi-Fi (AirPort)'
+    #   # At the office
+    #   - network: 172.16.0.0/16
+    #     ip: 172.16.0.17
     #     bridge: 'en0: Wi-Fi (AirPort)'
 
     # set up host-only network
