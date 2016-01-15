@@ -101,7 +101,7 @@ module VagrantPlugins
       host_networks = []
 
       Socket.getifaddrs.each do |ifaddr|
-        if ifaddr.addr.ipv4? && ifaddr.addr.ipv4_private?
+        if ifaddr.addr.ipv4? && ifaddr.addr.ipv4_private? && ifaddr.netmask.ipv4?
           machine_address = IP.new ifaddr.addr.ip_address
           netmask = IP.new ifaddr.netmask.ip_address
           network_address = machine_address & netmask
