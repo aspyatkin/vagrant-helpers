@@ -53,5 +53,8 @@ If you move often between different places, you might find it helpful to specify
 ```
 When your computer is at home (network is `192.168.163.0/24`), Vagrant will be told to set `192.168.163.100` as an IP address for your virtual machine. When your computer is at the office (network is `172.16.0.0/16`), Vagrant will be told to set `172.16.0.17` as an IP address for your virtual machine.
 
+### multi machine configuration
+You can specify the configuration for several VM instances. This feature has been introduced in `v1.4.0`. For more information, please refer to an example configuration file `opts.multimachine-example.yaml`.
+
 ## License
 MIT © [Alexander Pyatkin](https://github.com/aspyatkin)

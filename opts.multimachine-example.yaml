@@ -1,0 +1,43 @@
+vms:
+  sample1:  # this is how your VM instance will be displayed in Vagrant CLI
+    box: ubuntu/trusty64  # required
+    name: sample1  # required
+    memory: 768  # default 512 MB
+    cpus: 1  # default 1 processor
+    hostname: sample1.example.com  # not required
+    network:
+      # set up host-only network
+      private:
+        - ip: 10.0.10.10
+    synced_folders:
+      # disable current directory syncing
+      - host: .
+        guest: /vagrant
+        opts:
+          disabled: yes
+    storage:
+      # create storage in the specified file of specified size (in MB)
+      - filename: /Users/someone/Documents/vm/extra_disk_1.vdi
+        size: 256
+        controller: IDE  # default: SATA
+  sample2:
+    box: ubuntu/trusty64  # required
+    name: sample2  # required
+    memory: 768  # default 512 MB
+    cpus: 1  # default 1 processor
+    hostname: sample2.example.com  # not required
+    network:
+      # set up host-only network
+      private:
+        - ip: 10.0.10.20
+    synced_folders:
+      # disable current directory syncing
+      - host: .
+        guest: /vagrant
+        opts:
+          disabled: yes
+    storage:
+      # create storage in the specified file of specified size (in MB)
+      - filename: /Users/someone/Documents/vm/extra_disk_2.vdi
+        size: 256
+        controller: IDE  # default: SATA

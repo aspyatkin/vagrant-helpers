@@ -25,9 +25,15 @@ module VagrantPlugins
       end
     end
 
-    class MissingVMNameOptionError < Vagrant::Errors::VagrantError
+    class MissingVMNameOptionError < ::Vagrant::Errors::VagrantError
       def error_message
         "Missing vm.name option in `opts.yaml` file!"
+      end
+    end
+
+    class AmbiguousConfigurationError < ::Vagrant::Errors::VagrantError
+      def error_message
+        "Ambiguous configuration found in `opts.yaml` file! Specify either `vm` or `vms` key, not both of them!"
       end
     end
 
@@ -40,8 +46,7 @@ module VagrantPlugins
       end
     end
 
-    def self.set_vm_box(config, opts)
-      vm_box = opts.fetch('vm', {}).fetch('box', nil)
+    def self.set_vm_box(config, vm_box)
       if vm_box.nil?
         raise MissingVMBoxOptionError.new
       end
@@ -49,44 +54,35 @@ module VagrantPlugins
       config.vm.box = vm_box
     end
 
-    def self.set_vm_name(config, opts)
-      vm_name = opts.fetch('vm', {}).fetch('name', nil)
+    def self.set_vm_name(config, vm_name)
       if vm_name.nil?
         raise MissingVMNameOptionError.new
       end
 
       config.vm.provider :virtualbox do |v|
-          v.name = vm_name
+        v.name = vm_name
       end
     end
 
-    def self.set_vm_memory(config, opts)
-      vm_memory = opts.fetch('vm', {}).fetch('memory', 512)
-
+    def self.set_vm_memory(config, vm_memory)
       config.vm.provider :virtualbox do |v|
         v.memory = vm_memory
       end
     end
 
-    def self.set_vm_cpus(config, opts)
-      vm_cpus = opts.fetch('vm', {}).fetch('cpus', 1)
-
+    def self.set_vm_cpus(config, vm_cpus)
       config.vm.provider :virtualbox do |v|
         v.cpus = vm_cpus
       end
     end
 
-    def self.set_vm_hostname(config, opts)
-      vm_hostname = opts.fetch('vm', {}).fetch('hostname', nil)
-
+    def self.set_vm_hostname(config, vm_hostname)
       unless vm_hostname.nil?
         config.vm.hostname = vm_hostname
       end
     end
 
-    def self.set_vm_forwarded_ports(config, opts)
-      vm_forwarded_ports = opts.fetch('vm', {}).fetch('network', {}).fetch('forwarded_ports', [])
-
+    def self.set_vm_forwarded_ports(config, vm_forwarded_ports)
       vm_forwarded_ports.each do |options|
         prepared_options = ::Hash[options.map { |(k, v)| [k.to_sym, v] }]
         config.vm.network :forwarded_port, **prepared_options
@@ -116,9 +112,7 @@ module VagrantPlugins
       get_host_networks.any? { |host_network| host_network.eql? network_addr }
     end
 
-    def self.set_vm_public_networks(config, opts)
-      vm_public_networks = opts.fetch('vm', {}).fetch('network', {}).fetch('public', [])
-
+    def self.set_vm_public_networks(config, vm_public_networks)
       network_list = []
 
       vm_public_networks.each do |options|
@@ -139,27 +133,21 @@ module VagrantPlugins
       end
     end
 
-    def self.set_vm_private_networks(config, opts)
-      vm_private_networks = opts.fetch('vm', {}).fetch('network', {}).fetch('private', [])
-
+    def self.set_vm_private_networks(config, vm_private_networks)
       vm_private_networks.each do |options|
         prepared_options = ::Hash[options.map { |(k, v)| [k.to_sym, v] }]
         config.vm.network :private_network, **prepared_options
       end
     end
 
-    def self.set_vm_synced_folders(config, opts)
-      vm_synced_folders = opts.fetch('vm', {}).fetch('synced_folders', [])
-
+    def self.set_vm_synced_folders(config, vm_synced_folders)
       vm_synced_folders.each do |entry|
         prepared_options = ::Hash[entry.fetch('opts', {}).map { |(k,v)| [k.to_sym, v] }]
         config.vm.synced_folder entry['host'], entry['guest'], **prepared_options
       end
     end
 
-    def self.set_vm_extra_storage(config, opts)
-      vm_storage_drives = opts.fetch('vm', {}).fetch('storage', [])
-
+    def self.set_vm_extra_storage(config, vm_storage_drives)
       config.vm.provider :virtualbox do |v|
         vm_storage_drives.each_with_index do |entry, ndx|
           unless ::File.exists? entry['filename']
@@ -192,6 +180,36 @@ module VagrantPlugins
       end
     end
 
+    def self.each_vm(opts)
+      if opts.has_key?('vm') and opts.has_key?('vms')
+        raise AmbiguousConfigurationError.new
+      end
+
+      if opts.has_key? 'vm'
+        vm_opts = opts['vm']
+        yield nil, vm_opts
+      end
+
+      if opts.has_key? 'vms'
+        opts['vms'].each do |name, vm_opts|
+          yield name, vm_opts
+        end
+      end
+    end
+
+    def self.setup_instance(config, vm_opts)
+      set_vm_box config, vm_opts.fetch('box', nil)
+      set_vm_name config, vm_opts.fetch('name', nil)
+      set_vm_memory config, vm_opts.fetch('memory', 512)
+      set_vm_cpus config, vm_opts.fetch('cpus', 1)
+      set_vm_hostname config, vm_opts.fetch('hostname', nil)
+      set_vm_forwarded_ports config, vm_opts.fetch('network', {}).fetch('forwarded_ports', [])
+      set_vm_public_networks config, vm_opts.fetch('network', {}).fetch('public', [])
+      set_vm_private_networks config, vm_opts.fetch('network', {}).fetch('private', [])
+      set_vm_synced_folders config, vm_opts.fetch('synced_folders', [])
+      set_vm_extra_storage config, vm_opts.fetch('storage', [])
+    end
+
     def self.setup(dir)
       dotenv_filename = ::File.join dir, '.env'
       ::Dotenv.load
@@ -199,16 +217,17 @@ module VagrantPlugins
       ::Vagrant.configure(2) do |config|
         opts = get_opts dir
 
-        set_vm_box config, opts
-        set_vm_name config, opts
-        set_vm_memory config, opts
-        set_vm_cpus config, opts
-        set_vm_hostname config, opts
-        set_vm_forwarded_ports config, opts
-        set_vm_public_networks config, opts
-        set_vm_private_networks config, opts
-        set_vm_synced_folders config, opts
-        set_vm_extra_storage config, opts
+        each_vm(opts) do |name, vm_opts|
+          if name.nil?
+            # there is one instance only
+            setup_instance config, vm_opts
+          else
+            # there are several instances
+            config.vm.define name do |instance_config|
+              setup_instance instance_config, vm_opts
+            end
+          end
+        end
       end
     end
   end

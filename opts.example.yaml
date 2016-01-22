@@ -23,7 +23,7 @@ vm:
 
     # set up host-only network
     # private:
-    #   - type: dhcp
+    #   - ip: 10.0.10.10
   synced_folders:
     # disable current directory syncing
     - host: .
