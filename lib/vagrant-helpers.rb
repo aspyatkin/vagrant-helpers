@@ -54,6 +54,10 @@ module VagrantPlugins
       config.vm.box = vm_box
     end
 
+    def self.set_vm_ssh_insert_key(config, vm_ssh_insert_key)
+      config.ssh.insert_key = vm_ssh_insert_key
+    end
+
     def self.set_vm_name(config, vm_name)
       if vm_name.nil?
         raise MissingVMNameOptionError.new
@@ -203,6 +207,7 @@ module VagrantPlugins
       set_vm_memory config, vm_opts.fetch('memory', 512)
       set_vm_cpus config, vm_opts.fetch('cpus', 1)
       set_vm_hostname config, vm_opts.fetch('hostname', nil)
+      set_vm_ssh_insert_key config, vm_opts.fetch('ssh_insert_key', true)
       set_vm_forwarded_ports config, vm_opts.fetch('network', {}).fetch('forwarded_ports', [])
       set_vm_public_networks config, vm_opts.fetch('network', {}).fetch('public', [])
       set_vm_private_networks config, vm_opts.fetch('network', {}).fetch('private', [])

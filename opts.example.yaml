@@ -1,5 +1,6 @@
 vm:
   box: ubuntu/trusty64  # required
+  ssh_insert_key: no  # optional, "yes" by default
   name: sample-vm  # required
   memory: 1024  # default 512 MB
   cpus: 2  # default 1 processor

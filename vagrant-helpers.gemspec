@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'vagrant-helpers'
-  s.version = '1.4.0'
+  s.version = '1.4.1'
   s.date = '2016-01-15'
   s.summary = 'Vagrant helpers'
   s.description = 'Vagrant helpers plugin'
