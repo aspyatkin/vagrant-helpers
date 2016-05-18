@@ -5,7 +5,6 @@ require 'socket'
 require 'ipaddr'
 require 'ip'
 
-
 module VagrantPlugins
   module Helpers
     class MissingOptsFileError < ::Vagrant::Errors::VagrantError
@@ -39,19 +38,21 @@ module VagrantPlugins
 
     def self.get_opts(dir)
       filename = ::File.expand_path(ENV['VAGRANT_HELPERS_OPTS'] || 'opts.yaml', dir)
-      if ::File.exists? filename
+      if ::File.exist? filename
         ::YAML.load ::File.open filename
       else
-        raise MissingOptsFileError.new filename
+        raise MissingOptsFileError.new(filename)
       end
     end
 
     def self.set_vm_box(config, vm_box)
-      if vm_box.nil?
-        raise MissingVMBoxOptionError.new
-      end
-
+      raise MissingVMBoxOptionError.new if vm_box.nil?
       config.vm.box = vm_box
+    end
+
+    def self.set_vm_box_version(config, vm_box_version)
+      vm_box_version ||= '>= 0'
+      config.vm.box_version = vm_box_version
     end
 
     def self.set_vm_ssh_insert_key(config, vm_ssh_insert_key)
@@ -59,9 +60,7 @@ module VagrantPlugins
     end
 
     def self.set_vm_name(config, vm_name)
-      if vm_name.nil?
-        raise MissingVMNameOptionError.new
-      end
+      raise MissingVMNameOptionError.new if vm_name.nil?
 
       config.vm.provider :virtualbox do |v|
         v.name = vm_name
@@ -81,9 +80,7 @@ module VagrantPlugins
     end
 
     def self.set_vm_hostname(config, vm_hostname)
-      unless vm_hostname.nil?
-        config.vm.hostname = vm_hostname
-      end
+      config.vm.hostname = vm_hostname unless vm_hostname.nil?
     end
 
     def self.set_vm_forwarded_ports(config, vm_forwarded_ports)
@@ -94,7 +91,7 @@ module VagrantPlugins
     end
 
     def self.get_cidr_mask(mask)
-       Integer(32 - Math.log2((IPAddr.new(mask, Socket::AF_INET).to_i ^ 0xffffffff) + 1))
+      Integer(32 - Math.log2((IPAddr.new(mask, Socket::AF_INET).to_i ^ 0xffffffff) + 1))
     end
 
     def self.get_host_networks
@@ -120,7 +117,7 @@ module VagrantPlugins
       network_list = []
 
       vm_public_networks.each do |options|
-        if options.has_key? 'network'
+        if options.key? 'network'
           network_addr = IP.new options.delete 'network'
           if host_in_network? network_addr
             network_list << options
@@ -146,7 +143,7 @@ module VagrantPlugins
 
     def self.set_vm_synced_folders(config, vm_synced_folders)
       vm_synced_folders.each do |entry|
-        prepared_options = ::Hash[entry.fetch('opts', {}).map { |(k,v)| [k.to_sym, v] }]
+        prepared_options = ::Hash[entry.fetch('opts', {}).map { |(k, v)| [k.to_sym, v] }]
         config.vm.synced_folder entry['host'], entry['guest'], **prepared_options
       end
     end
@@ -154,7 +151,7 @@ module VagrantPlugins
     def self.set_vm_extra_storage(config, vm_storage_drives)
       config.vm.provider :virtualbox do |v|
         vm_storage_drives.each_with_index do |entry, ndx|
-          unless ::File.exists? entry['filename']
+          unless ::File.exist? entry['filename']
             # create hdd
             v.customize [
               'createhd',
@@ -185,16 +182,14 @@ module VagrantPlugins
     end
 
     def self.each_vm(opts)
-      if opts.has_key?('vm') and opts.has_key?('vms')
-        raise AmbiguousConfigurationError.new
-      end
+      raise AmbiguousConfigurationError.new if opts.key?('vm') && opts.key?('vms')
 
-      if opts.has_key? 'vm'
+      if opts.key? 'vm'
         vm_opts = opts['vm']
         yield nil, vm_opts
       end
 
-      if opts.has_key? 'vms'
+      if opts.key? 'vms'
         opts['vms'].each do |name, vm_opts|
           yield name, vm_opts
         end
@@ -203,6 +198,7 @@ module VagrantPlugins
 
     def self.setup_instance(config, vm_opts)
       set_vm_box config, vm_opts.fetch('box', nil)
+      set_vm_box_version config, vm_opts.fetch('box_version', nil)
       set_vm_name config, vm_opts.fetch('name', nil)
       set_vm_memory config, vm_opts.fetch('memory', 512)
       set_vm_cpus config, vm_opts.fetch('cpus', 1)
@@ -216,7 +212,6 @@ module VagrantPlugins
     end
 
     def self.setup(dir)
-      dotenv_filename = ::File.join dir, '.env'
       ::Dotenv.load
 
       ::Vagrant.configure(2) do |config|
