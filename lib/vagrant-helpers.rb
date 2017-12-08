@@ -79,6 +79,14 @@ module VagrantPlugins
       end
     end
 
+    def self.set_vm_auto_nat_dns_proxy(config, vm_auto_nat_dns_proxy)
+      unless vm_auto_nat_dns_proxy.nil?
+        config.vm.provider :virtualbox do |v|
+          v.auto_nat_dns_proxy = vm_auto_nat_dns_proxy
+	end
+      end
+    end
+
     def self.set_vm_hostname(config, vm_hostname)
       config.vm.hostname = vm_hostname unless vm_hostname.nil?
     end
@@ -202,6 +210,7 @@ module VagrantPlugins
       set_vm_name config, vm_opts.fetch('name', nil)
       set_vm_memory config, vm_opts.fetch('memory', 512)
       set_vm_cpus config, vm_opts.fetch('cpus', 1)
+      set_vm_auto_nat_dns_proxy config, vm_opts.fetch('auto_nat_dns_proxy', nil)
       set_vm_hostname config, vm_opts.fetch('hostname', nil)
       set_vm_ssh_insert_key config, vm_opts.fetch('ssh_insert_key', true)
       set_vm_forwarded_ports config, vm_opts.fetch('network', {}).fetch('forwarded_ports', [])
