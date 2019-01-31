@@ -67,10 +67,18 @@ When your computer is at home (network is `192.168.163.0/24`), Vagrant will be t
 
 You can specify the configuration for several VM instances. For more information, please refer to an example configuration file `opts.multimachine-example.yaml`.
 
-### retain Vagrant's default key pair
-*This feature has been introduced in `1.4.1`*
+### set Vagrant properties directly
+*This feature is available as of `1.5.0`*
 
-By default, Vagrant will replace its insecure key pair with a newly generated one. To avoid this, you can set `ssh_insert_key` to `no` in opts file.
+You can set VM instance properties directly in the following fashion:
+
+```
+vm:
+  ...
+  other:
+    ssh.insert_key: no
+  ...
+```
 
 ## License
 MIT © [Alexander Pyatkin](https://github.com/aspyatkin)

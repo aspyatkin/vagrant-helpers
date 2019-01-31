@@ -55,8 +55,16 @@ module VagrantPlugins
       config.vm.box_version = vm_box_version
     end
 
-    def self.set_vm_ssh_insert_key(config, vm_ssh_insert_key)
-      config.ssh.insert_key = vm_ssh_insert_key
+    def self.set_vm_property(config, key, val)
+      prop = config
+      parts = key.split('.')
+      parts.each_with_index do |prop_name, ndx|
+        if ndx == parts.size - 1
+          prop.send("#{prop_name}=", val)
+        else
+          prop = prop.send("#{prop_name}")
+        end
+      end
     end
 
     def self.set_vm_name(config, vm_name)
@@ -212,12 +220,14 @@ module VagrantPlugins
       set_vm_cpus config, vm_opts.fetch('cpus', 1)
       set_vm_auto_nat_dns_proxy config, vm_opts.fetch('auto_nat_dns_proxy', nil)
       set_vm_hostname config, vm_opts.fetch('hostname', nil)
-      set_vm_ssh_insert_key config, vm_opts.fetch('ssh_insert_key', true)
       set_vm_forwarded_ports config, vm_opts.fetch('network', {}).fetch('forwarded_ports', [])
       set_vm_public_networks config, vm_opts.fetch('network', {}).fetch('public', [])
       set_vm_private_networks config, vm_opts.fetch('network', {}).fetch('private', [])
       set_vm_synced_folders config, vm_opts.fetch('synced_folders', [])
       set_vm_extra_storage config, vm_opts.fetch('storage', [])
+      vm_opts.fetch('other', {}).each do |key, val|
+        set_vm_property config, key, val
+      end
     end
 
     def self.setup(dir)
