@@ -4,6 +4,7 @@ require 'dotenv'
 require 'socket'
 require 'ipaddr'
 require 'ip'
+require 'shellwords'
 
 module VagrantPlugins
   module Helpers
@@ -164,10 +165,27 @@ module VagrantPlugins
       end
     end
 
+    def self.command_exist?(command)
+      system("which #{command} > /dev/null 2>&1")
+    end
+
+    def self.windows_path?(path)
+      r = /^[a-zA-Z]:\\[\\\S|*\S]?.*$/
+      !path.match(r).nil?
+    end
+
+    def self.wslpath(path)
+      `wslpath #{::Shellwords.escape(path)}`.strip
+    end
+
     def self.set_vm_extra_storage(config, vm_storage_drives)
       config.vm.provider :virtualbox do |v|
         vm_storage_drives.each_with_index do |entry, ndx|
-          unless ::File.exist? entry['filename']
+          entry_path = entry['filename']
+	  if windows_path?(entry_path) && command_exist?('wslpath')
+            entry_path = wslpath(entry['filename'])
+	  end
+          unless ::File.exist?(entry_path)
             # create hdd
             v.customize [
               'createhd',
